@@ -1,6 +1,6 @@
 /**
-* File : ./routes/items.js 
-* Tanggal Dibuat : 2018-10-23 21:02:02
+* File : ./routes/accounts.js 
+* Tanggal Dibuat : 2018-10-23 22:43:56
 * Penulis : LabPC2
 */
 
@@ -9,25 +9,27 @@ import { requiredPost, requiredGet } from '../middlewares/validator/request_fiel
 import { onlyAuth } from '../middlewares/validator/auth';
 import { parser } from '../middlewares/query/parser';
 
-function items(app, models, socketListener) {
+function accounts(app, models, socketListener) {
     let router = app.get("express").Router();
 
     /**
-    * Daftar Item
+    * Daftar Account
     */
-    router.get('/', parser('Item'), a(async (req, res) => {
+    router.get('/', parser('Account'), a(async (req, res) => {
         // Ambil model
-        const { Item, Unit } = models;
+        const { Account, Type } = models;
 
-        // Data Item
-        let data = await Item.findAndCountAll({
+        // Data Account
+        let data = await Account.findAndCountAll({
             distinct: true,
             attributes: req.parsed.attributes,
             where: { ...req.parsed.filter },
             order: req.parsed.order,
             limit: req.parsed.limit,
             offset: req.parsed.offset,
-            include: [{ model: Unit }]
+            include: [{
+                    model: Type
+                }]
         });
 
         // Response
@@ -37,20 +39,22 @@ function items(app, models, socketListener) {
     }));
 
     /**
-     * Satu Item
+     * Satu Account
      */
-    router.get('/:id', parser('Item'), a(async (req, res) => {
+    router.get('/:id', parser('Account'), a(async (req, res) => {
         // Ambil model
-        const { Item, Unit } = models;
+        const { Account, Type } = models;
 
         // Variabel
         let { id } = req.params;
 
-        // Data Item
-        let data = await Item.findOne({
+        // Data Account
+        let data = await Account.findOne({
             attributes: req.parsed.attributes,
-            where: { id },
-            include: [{ model: Unit }]
+            where: { id }, 
+            include: [{
+                    model: Type
+                }] 
         });
 
         if (data) {
@@ -62,23 +66,23 @@ function items(app, models, socketListener) {
             // Gagal
             res.status(404);
             res.setStatus(res.GAGAL);
-            res.setMessage('Item tidak ditemukan');
+            res.setMessage('Account tidak ditemukan');
             res.go();
         }
     }));
 
     /**
-     * Buat Item
+     * Buat Account
      */
-    router.post('/', requiredPost(["name", "price", "unit_id"]), a(async (req, res) => {
+    router.post('/', requiredPost(["name","number"]), a(async (req, res) => {
         // Ambil model
-        const { Item } = models;
+        const { Account } = models;
 
         // Variabel
-        let { name, unit_id, price } = req.body;
+        let { name, number } = req.body;
 
-        // Buat Item
-        let data = await Item.create({ name, unit_id, price, quantity: 0 });
+        // Buat Account
+        let data = await Account.create({ name, number });
 
         // Response
         res.setStatus(res.OK);
@@ -87,22 +91,22 @@ function items(app, models, socketListener) {
     }));
 
     /**
-     * Update Item
+     * Update Account
      */
-    router.put('/:id', requiredPost(["name", "unit_id", "price"]), a(async (req, res) => {
+    router.put('/:id', requiredPost(["name","number"]), a(async (req, res) => {
         // Ambil model
-        const { Item } = models;
+        const { Account } = models;
 
         // Variabel
         let { id } = req.params;
-        let { name, unit_id, price } = req.body;
+        let { name, number } = req.body;
 
-        // Ambil Item
-        let data = await Item.findOne({ where: { id } });
+        // Ambil Account
+        let data = await Account.findOne({ where: { id } });
 
         if (data) {
-            // Update Item
-            data = await data.update({ name, unit_id, price });
+            // Update Account
+            data = await data.update({ name, number });
             // Response
             res.setStatus(res.OK);
             res.setData(data);
@@ -111,26 +115,26 @@ function items(app, models, socketListener) {
             // Gagal
             res.status(404);
             res.setStatus(res.GAGAL);
-            res.setMessage('Item tidak ditemukan');
+            res.setMessage('Account tidak ditemukan');
             res.go();
         }
     }));
 
     /**
-     * Hapus Item
+     * Hapus Account
      */
     router.delete('/:id', a(async (req, res) => {
         // Ambil model
-        const { Item } = models;
+        const { Account } = models;
 
         // Variabel
         let { id } = req.params;
 
-        // Ambil Item
-        let data = await Item.findOne({ where: { id } });
+        // Ambil Account
+        let data = await Account.findOne({ where: { id } });
 
         if (data) {
-            // Hapus Item
+            // Hapus Account
             data.destroy();
             // Response
             res.setStatus(res.OK);
@@ -140,7 +144,7 @@ function items(app, models, socketListener) {
             // Gagal
             res.status(404);
             res.setStatus(res.GAGAL);
-            res.setMessage('Item tidak ditemukan');
+            res.setMessage('Account tidak ditemukan');
             res.go();
         }
     }));
@@ -148,4 +152,4 @@ function items(app, models, socketListener) {
     return router;
 }
 
-module.exports = items;
+module.exports = accounts;

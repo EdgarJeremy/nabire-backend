@@ -9,10 +9,21 @@
     "build": "npm run clean && npm run build-babel && cp -R ./frontend ./build",
     "start": "npm run build && node ./build/index.js",
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node index.js",
-    "seed": "cross-env NODE_ENV=development babel-node ./core/generator/seed.js",
-    "make": "cross-env NODE_ENV=development babel-node ./core/generator/make.js",
-    "inspect": "cross-env NODE_ENV=development babel-node ./core/inspector/cli.js",
-    "flood": "cross-env NODE_ENV=development npm run seed Rent:20 && npm run seed User:20 && npm run seed Object:30 && npm run seed ObjectData:100"
+
+    "seed-dev": "cross-env NODE_ENV=development babel-node ./core/generator/seed.js",
+    "make-dev": "cross-env NODE_ENV=development babel-node ./core/generator/make.js",
+    "inspect-dev": "cross-env NODE_ENV=development babel-node ./core/inspector/cli.js",
+    "flood-dev": "cross-env NODE_ENV=development npm run seed Rent:20 && npm run seed User:20 && npm run seed Object:30 && npm run seed ObjectData:100",
+
+    "seed-stage": "cross-env NODE_ENV=staging babel-node ./core/generator/seed.js",
+    "make-stage": "cross-env NODE_ENV=staging babel-node ./core/generator/make.js",
+    "inspect-stage": "cross-env NODE_ENV=staging babel-node ./core/inspector/cli.js",
+    "flood-stage": "cross-env NODE_ENV=staging npm run seed Rent:20 && npm run seed User:20 && npm run seed Object:30 && npm run seed ObjectData:100",
+
+    "seed-prod": "cross-env NODE_ENV=production babel-node ./core/generator/seed.js",
+    "make-prod": "cross-env NODE_ENV=production babel-node ./core/generator/make.js",
+    "inspect-prod": "cross-env NODE_ENV=production babel-node ./core/inspector/cli.js",
+    "flood-prod": "cross-env NODE_ENV=production npm run seed Rent:20 && npm run seed User:20 && npm run seed Object:30 && npm run seed ObjectData:100"
   },
   "repository": {
     "type": "git",

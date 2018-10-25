@@ -80,7 +80,7 @@ function purchases(app, models, socketListener) {
      */
     router.post('/', requiredPost(["invoice_number", "quantity", "transfer", "item_id"]), a(async (req, res) => {
         // Ambil model
-        const { Purchase } = models;
+        const { Purchase, Item } = models;
 
         // Variabel
         let { invoice_number, quantity, transfer, description, item_id } = req.body;

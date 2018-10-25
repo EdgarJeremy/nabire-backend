@@ -74,15 +74,15 @@ function accounts(app, models, socketListener) {
     /**
      * Buat Account
      */
-    router.post('/', requiredPost(["name","number"]), a(async (req, res) => {
+    router.post('/', requiredPost(["name","number", "type_id"]), a(async (req, res) => {
         // Ambil model
         const { Account } = models;
 
         // Variabel
-        let { name, number } = req.body;
+        let { name, number, type_id } = req.body;
 
         // Buat Account
-        let data = await Account.create({ name, number });
+        let data = await Account.create({ name, number, type_id });
 
         // Response
         res.setStatus(res.OK);

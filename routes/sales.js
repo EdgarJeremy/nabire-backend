@@ -90,8 +90,8 @@ function sales(app, models, socketListener) {
         if (item) {
             if (item.quantity - quantity >= 0) {
                 let price_per_unit = item.price;
-                let total_price = item.price * quantity;
-                let exact_total_price = Math.ceil(total_price);
+                let exact_total_price = item.price * quantity;
+                let total_price = Math.ceil(exact_total_price);
 
                 // Buat Sale
                 let data = await Sale.create({ quantity, item_id, description, price_per_unit, total_price, exact_total_price });

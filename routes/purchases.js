@@ -28,10 +28,10 @@ function purchases(app, models, socketListener) {
             limit: req.parsed.limit,
             offset: req.parsed.offset,
             include: [{
-                    model: User
-                },{
-                    model: Item
-                }]
+                model: User
+            }, {
+                model: Item
+            }]
         });
 
         // Response
@@ -53,12 +53,12 @@ function purchases(app, models, socketListener) {
         // Data Purchase
         let data = await Purchase.findOne({
             attributes: req.parsed.attributes,
-            where: { id }, 
+            where: { id },
             include: [{
-                    model: User
-                },{
-                    model: Item
-                }] 
+                model: User
+            }, {
+                model: Item
+            }]
         });
 
         if (data) {
@@ -78,26 +78,43 @@ function purchases(app, models, socketListener) {
     /**
      * Buat Purchase
      */
-    router.post('/', requiredPost(["invoice_number","quantity","price_per_unit","total_price","exact_total_price","transfer","difference"]), a(async (req, res) => {
+    router.post('/', requiredPost(["invoice_number", "quantity", "transfer", "item_id"]), a(async (req, res) => {
         // Ambil model
         const { Purchase } = models;
 
         // Variabel
-        let { invoice_number, quantity, price_per_unit, total_price, exact_total_price, transfer, difference, description } = req.body;
+        let { invoice_number, quantity, transfer, description, item_id } = req.body;
 
-        // Buat Purchase
-        let data = await Purchase.create({ invoice_number, quantity, price_per_unit, total_price, exact_total_price, transfer, difference, description });
+        let item = await Item.findOne({ where: { id: item_id } });
 
-        // Response
-        res.setStatus(res.OK);
-        res.setData(data);
-        res.go();
+        if (item) {
+            let price_per_unit = item.price;
+            let exact_total_price = item.price * quantity;
+            let total_price = Math.ceil(exact_total_price);
+            let difference = exact_total_price - transfer;
+
+            // Buat Purchase
+            let data = await Purchase.create({ invoice_number, quantity, price_per_unit, total_price, exact_total_price, transfer, difference, description, item_id });
+            // Tambahi
+            item.quantity = item.quantity + quantity;
+            item.save();
+            // Response
+            res.setStatus(res.OK);
+            res.setData(data);
+            res.go();
+        } else {
+            // Gagal
+            res.status(404);
+            res.setStatus(res.GAGAL);
+            res.setMessage('Item tidak ditemukan');
+            res.go();
+        }
     }));
 
     /**
      * Update Purchase
      */
-    router.put('/:id', requiredPost(["invoice_number","quantity","price_per_unit","total_price","exact_total_price","transfer","difference"]), a(async (req, res) => {
+    router.put('/:id', requiredPost(["invoice_number", "quantity", "price_per_unit", "total_price", "exact_total_price", "transfer", "difference"]), a(async (req, res) => {
         // Ambil model
         const { Purchase } = models;
 

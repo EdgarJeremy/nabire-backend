@@ -78,19 +78,19 @@ function sales(app, models, socketListener) {
     /**
      * Buat Sale
      */
-    router.post('/', requiredPost(["quantity", "item_id"]), a(async (req, res) => {
+    router.post('/', requiredPost(["quantity", "item_id", "price"]), a(async (req, res) => {
         // Ambil model
         const { Sale, Item } = models;
 
         // Variabel
-        let { quantity, item_id, description } = req.body;
+        let { quantity, item_id, price, description } = req.body;
 
         let item = await Item.findOne({ where: { id: item_id } });
 
         if (item) {
             if (item.quantity - quantity >= 0) {
-                let price_per_unit = item.price;
-                let exact_total_price = item.price * quantity;
+                let price_per_unit = price;
+                let exact_total_price = price_per_unit * quantity;
                 let total_price = Math.ceil(exact_total_price);
 
                 // Buat Sale

@@ -78,18 +78,18 @@ function purchases(app, models, socketListener) {
     /**
      * Buat Purchase
      */
-    router.post('/', requiredPost(["invoice_number", "quantity", "transfer", "item_id"]), a(async (req, res) => {
+    router.post('/', requiredPost(["invoice_number", "quantity", "transfer", "item_id", "price"]), a(async (req, res) => {
         // Ambil model
         const { Purchase, Item } = models;
 
         // Variabel
-        let { invoice_number, quantity, transfer, description, item_id } = req.body;
+        let { invoice_number, quantity, transfer, description, item_id, price } = req.body;
 
         let item = await Item.findOne({ where: { id: item_id } });
 
         if (item) {
-            let price_per_unit = item.price;
-            let exact_total_price = item.price * quantity;
+            let price_per_unit = price;
+            let exact_total_price = price_per_unit * quantity;
             let total_price = Math.ceil(exact_total_price);
             let difference = exact_total_price - transfer;
 

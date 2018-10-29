@@ -17,7 +17,7 @@ let ops = {
 let filterOp = (item = '') => {
     let r = false;
     Object.keys(ops).forEach((op) => {
-        if(item.indexOf(op) !== -1) {
+        if (item.indexOf(op) !== -1) {
             let [key, value] = item.split(op);
             r = { [key]: { [ops[op]]: op === '[like]' ? `%${value}%` : value } };
         }
@@ -28,44 +28,52 @@ let filterOp = (item = '') => {
 export function parser(opts) {
     return (req, res, next) => {
         let query = req.query;
-        let filter = query.filter || '';
+        let filterRaw = query.filter || '';
         let order = query.order || '\\created_at';
         let attributes = query.attributes ? query.attributes.split(',') : ['id'];
         let limit = query.limit;
         let offset = query.offset;
 
-        let parsed = {};
+        let parsed = {
+            filter: {}
+        };
 
         /**
          * Filter
          */
-        let andFilter = filter.split('<and>');
-        let orFilter = [];
-        andFilter.forEach((andItem, i) => {
-            let split = andItem.split('<or>');
-            if (split.length > 1) {
-                let and = split[0];
-                split.splice(0, 1);
-                orFilter = [...orFilter, ...split];
-                andFilter[i] = and;
+        filterRaw.split(';').forEach((filterItem) => {
+            let values = filterItem.split(':');
+            let model = values[0];
+            let filter = values[1];
+            parsed.filter[model] = {};
+
+            let andFilter = filter.split('<and>');
+            let orFilter = [];
+            andFilter.forEach((andItem, i) => {
+                let split = andItem.split('<or>');
+                if (split.length > 1) {
+                    let and = split[0];
+                    split.splice(0, 1);
+                    orFilter = [...orFilter, ...split];
+                    andFilter[i] = and;
+                }
+            });
+            andFilter = _.compact(andFilter.map(filterOp));
+            orFilter = _.compact(orFilter.map(filterOp));
+            if (andFilter.length) {
+                if (parsed.filter[model][sequelize.Op.or] === undefined) {
+                    parsed.filter[model][sequelize.Op.or] = {};
+                }
+                parsed.filter[sequelize.Op.or][sequelize.Op.and] = andFilter;
+            }
+            if (orFilter.length) {
+                if (parsed.filter[model][sequelize.Op.or] === undefined) {
+                    parsed.filter[model][sequelize.Op.or] = {};
+                }
+                parsed.filter[model][sequelize.Op.or][sequelize.Op.or] = orFilter;
             }
         });
-        andFilter = _.compact(andFilter.map(filterOp));
-        orFilter = _.compact(orFilter.map(filterOp));
-        parsed.filter = { };
-        if(andFilter.length) {
-            if(parsed.filter[sequelize.Op.or] === undefined) {
-                parsed.filter[sequelize.Op.or] = {};
-            }
-            parsed.filter[sequelize.Op.or][sequelize.Op.and] = andFilter;
-        }
-        if(orFilter.length) {
-            if(parsed.filter[sequelize.Op.or] === undefined) {
-                parsed.filter[sequelize.Op.or] = {};
-            }
-            parsed.filter[sequelize.Op.or][sequelize.Op.or] = orFilter;
-        }
-        
+
         /**
          * Order
          */

@@ -20,19 +20,19 @@ function items(app, models, socketListener) {
         const { Item, Unit } = models;
 
         // Data Item
-        let data = await Item.findAndCountAll({
-            distinct: true,
-            attributes: req.parsed.attributes,
-            where: { ...req.parsed.filter },
-            order: req.parsed.order,
-            limit: req.parsed.limit,
-            offset: req.parsed.offset,
-            include: [{ model: Unit }]
-        });
+        // let data = await Item.findAndCountAll({
+        //     distinct: true,
+        //     attributes: req.parsed.attributes,
+        //     where: { ...req.parsed.filter },
+        //     order: req.parsed.order,
+        //     limit: req.parsed.limit,
+        //     offset: req.parsed.offset,
+        //     include: [{ model: Unit }]
+        // });
 
         // Response
         res.setStatus(res.OK);
-        res.setData(data);
+        res.setData(req.parsed);
         res.go();
     }));
 

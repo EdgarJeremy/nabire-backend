@@ -9,6 +9,8 @@ import { requiredPost, requiredGet } from '../middlewares/validator/request_fiel
 import { onlyAuth } from '../middlewares/validator/auth';
 import { parser } from '../middlewares/query/parser';
 
+import bcrypt from 'bcrypt';
+
 function users(app, models, socketListener, t) {
     let router = app.get("express").Router();
 
@@ -49,8 +51,8 @@ function users(app, models, socketListener, t) {
         // Data User
         let data = await User.findOne({
             attributes: req.parsed.attributes,
-            where: { id }, 
-            include: [] 
+            where: { id },
+            include: []
         });
 
         if (data) {
@@ -70,7 +72,7 @@ function users(app, models, socketListener, t) {
     /**
      * Buat User
      */
-    router.post('/', requiredPost(["name","username","password","type","avatar","active","last_login"]), a(async (req, res) => {
+    router.post('/', requiredPost(["name", "username", "password", "type", "avatar", "active", "last_login"]), a(async (req, res) => {
         // Ambil model
         const { User } = models;
 
@@ -89,20 +91,24 @@ function users(app, models, socketListener, t) {
     /**
      * Update User
      */
-    router.put('/:id', requiredPost(["name","username","password","type","avatar","active","last_login"]), a(async (req, res) => {
+    router.put('/:id', requiredPost(["name", "username", "password", "avatar"]), a(async (req, res) => {
         // Ambil model
         const { User } = models;
 
         // Variabel
         let { id } = req.params;
-        let { name, username, password, type, avatar, active, last_login } = req.body;
+        let { name, username, password, avatar } = req.body;
 
         // Ambil User
         let data = await User.findOne({ where: { id } });
 
         if (data) {
+            let d = { name, username, avatar };
+            if(password) {
+                d.password = bcrypt.hashSync(password, 10);
+            }
             // Update User
-            data = await data.update({ name, username, password, type, avatar, active, last_login });
+            data = await data.update(d);
             // Response
             res.setStatus(res.OK);
             res.setData(data);

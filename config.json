@@ -17,9 +17,9 @@
         "models": "models"
     },
     "database": {
-        "host": "192.168.1.9",
-        "user": "postgres",
-        "password": "dbsirius221b",
+        "host": "localhost",
+        "user": "",
+        "password": "",
         "database": "nabire",
         "port": 5432,
         "dialect": "postgres"

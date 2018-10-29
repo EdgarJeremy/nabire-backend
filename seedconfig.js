@@ -8,7 +8,7 @@ export default {
     default_times: 30,
     entities: {
         Unit: {
-            name: faker.name.findName
+            name: () => _.sample(['Meter', 'Liter', 'Kilogram', 'Gram', 'Unit', 'Karung', 'Sachet', 'Pcs'])
         },
         Item: {
             name: faker.commerce.productName,
